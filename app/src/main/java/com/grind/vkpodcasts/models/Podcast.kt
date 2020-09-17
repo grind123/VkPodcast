@@ -5,10 +5,11 @@ class Podcast {
     var name: String? = null
     var desc: String? = null
     var fileName: String? = null
-    var backgroundSound: String? = null
+    var backgroundTrack: SoundTrack? = null
     var emergency: Boolean = false
     var extinction: Boolean = false
     var durationString: String? = null
     var duration: Long? = null
     var timeCodesList: List<TimeCode>? = null
+
 }

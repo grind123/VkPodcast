@@ -13,6 +13,7 @@ import android.view.animation.LinearInterpolator
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
@@ -20,8 +21,10 @@ import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.grind.vkpodcasts.R
+import com.grind.vkpodcasts.adapters.SoundTracksAdapter
 import com.grind.vkpodcasts.customviews.LockingNestedScrollView
 import com.grind.vkpodcasts.models.Podcast
+import com.grind.vkpodcasts.models.SoundTrack
 import com.grind.vkpodcasts.models.TimeCode
 import com.grind.vkpodcasts.utils.PixelsUtils
 import kotlinx.coroutines.CoroutineScope
@@ -117,7 +120,7 @@ class SoundEditorFragment(private val mPodcast: Podcast) : Fragment() {
     }
 
     override fun onDestroy() {
-        if(!isBackButtonWasClicked){
+        if (!isBackButtonWasClicked) {
             val list = makeTimeCodeList()
             mPodcast.timeCodesList = list
         }
@@ -191,17 +194,46 @@ class SoundEditorFragment(private val mPodcast: Podcast) : Fragment() {
 
         noteButton.setOnClickListener {
             if (isMusicAdded) {
+                fadeAnimation(
+                    this@SoundEditorFragment.view!!.findViewById<TextView>(R.id.tv_music),
+                    false
+                )
                 noteButton.background =
                     ContextCompat.getDrawable(context!!, R.drawable.button_gray_normal)
                 noteButton.imageTintList =
                     ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorAccent))
                 isMusicAdded = false
             } else {
-                noteButton.background =
-                    ContextCompat.getDrawable(context!!, R.drawable.button_primary_normal)
-                noteButton.imageTintList =
-                    ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.color_white))
-                isMusicAdded = true
+                addFragment(
+                    ChooseMusicFragment(
+                        mPodcast,
+                        object : SoundTracksAdapter.OnItemClickListener {
+                            override fun onItemClick(soundTrack: SoundTrack) {
+                                val track =
+                                    this@SoundEditorFragment.view!!.findViewById<TextView>(R.id.tv_music)
+                                track.text = "${soundTrack.trackName} — ${soundTrack.artistName}"
+                                fadeAnimation(
+                                    track,
+                                    true
+                                )
+                                noteButton.background =
+                                    ContextCompat.getDrawable(
+                                        context!!,
+                                        R.drawable.button_primary_normal
+                                    )
+                                noteButton.imageTintList =
+                                    ColorStateList.valueOf(
+                                        ContextCompat.getColor(
+                                            context!!,
+                                            R.color.color_white
+                                        )
+                                    )
+                                isMusicAdded = true
+                            }
+
+                        }), true
+                )
+
             }
         }
 
