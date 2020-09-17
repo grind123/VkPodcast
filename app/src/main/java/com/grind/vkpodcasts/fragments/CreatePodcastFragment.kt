@@ -30,17 +30,6 @@ class CreatePodcastFragment : Fragment() {
 
     private val mPodcast = Podcast()
 
-//    override fun onSaveInstanceState(outState: Bundle) {
-//        super.onSaveInstanceState(outState)
-//        outState.putString("retain","some retain info")
-//    }
-//
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        retainInstance = true
-//    }
-
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -89,10 +78,12 @@ class CreatePodcastFragment : Fragment() {
                 return@setOnClickListener
             }
             if (podcastDesc.text.isNullOrBlank()) {
-                Toast.makeText(context, "", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Добавьте описание", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            //TODO next fragment
+            mPodcast.name = podcastName.text.toString()
+            mPodcast.desc = podcastDesc.text.toString()
+            addFragment(PodcastPreviewFragment(mPodcast), true)
         }
     }
 

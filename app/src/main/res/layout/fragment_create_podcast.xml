@@ -259,7 +259,7 @@
                 android:id="@+id/tv_access_desc"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Всем ползователям"
+                android:text="Всем пользователям"
                 android:layout_marginStart="12dp"
                 android:layout_marginTop="4dp"
                 android:textColor="@color/color_light_text_secondary"

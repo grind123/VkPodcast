@@ -16,9 +16,11 @@ import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.grind.vkpodcasts.R
+import com.grind.vkpodcasts.customviews.LockingNestedScrollView
 import com.grind.vkpodcasts.models.Podcast
 import com.grind.vkpodcasts.models.TimeCode
 import com.grind.vkpodcasts.utils.PixelsUtils
@@ -30,6 +32,7 @@ import kotlin.math.absoluteValue
 
 class SoundEditorFragment(private val mPodcast: Podcast) : Fragment() {
     private lateinit var backButton: ImageView
+    private lateinit var nestedScroll: LockingNestedScrollView
     private lateinit var spectrogram: ImageView
     private lateinit var timePositionIndicator: ImageView
     private lateinit var playButton: ImageView
@@ -47,6 +50,8 @@ class SoundEditorFragment(private val mPodcast: Podcast) : Fragment() {
     private var isEmergencyAdded = false
     private var isExtinctionAdded = false
 
+    private var isBackButtonWasClicked = false
+
     private lateinit var timePositionTranslation: ObjectAnimator
 
     override fun onCreateView(
@@ -57,6 +62,7 @@ class SoundEditorFragment(private val mPodcast: Podcast) : Fragment() {
         val v = View.inflate(context, R.layout.fragment_sound_editor, null)
         backButton = v.findViewById(R.id.imv_back_button)
         spectrogram = v.findViewById(R.id.imv_spectrogram)
+        nestedScroll = v.findViewById(R.id.nsv)
         timePositionIndicator = v.findViewById(R.id.imv_time_position)
         playButton = v.findViewById(R.id.imv_play)
         cutButton = v.findViewById(R.id.imv_cut)
@@ -110,10 +116,20 @@ class SoundEditorFragment(private val mPodcast: Podcast) : Fragment() {
         }
     }
 
+    override fun onDestroy() {
+        if(!isBackButtonWasClicked){
+            val list = makeTimeCodeList()
+            mPodcast.timeCodesList = list
+        }
+
+        super.onDestroy()
+    }
+
     private fun initListeners() {
         backButton.setOnClickListener {
             val list = makeTimeCodeList()
             mPodcast.timeCodesList = list
+            isBackButtonWasClicked = true
             fragmentManager?.popBackStack()
         }
 
@@ -328,6 +344,7 @@ class SoundEditorFragment(private val mPodcast: Podcast) : Fragment() {
                     MotionEvent.ACTION_DOWN -> {
                         initialTouchX = motionEvent.rawX.toInt()
                         initialTouchY = motionEvent.rawY.toInt()
+                        nestedScroll.setScrollingEnabled(false)
                         Log.e("initialX", "$initialX")
                         Log.e("initialY", "$initialY")
                         Log.e("initialTouchX", "$initialTouchX")
@@ -336,6 +353,7 @@ class SoundEditorFragment(private val mPodcast: Podcast) : Fragment() {
                     MotionEvent.ACTION_UP -> {
                         lastStartMargin = indicatorParams.marginStart
                         currMarginStart = lastStartMargin
+                        nestedScroll.setScrollingEnabled(true)
                     }
                     MotionEvent.ACTION_MOVE -> {
                         Log.e("move", "${motionEvent.rawX.toInt()}")
@@ -386,6 +404,7 @@ class SoundEditorFragment(private val mPodcast: Podcast) : Fragment() {
                     MotionEvent.ACTION_DOWN -> {
                         initialTouchX = (getScreenWidth() - motionEvent.rawX.toInt())
                         initialTouchY = motionEvent.rawY.toInt()
+                        nestedScroll.setScrollingEnabled(false)
                         Log.e("initialX", "$initialX")
                         Log.e("initialY", "$initialY")
                         Log.e("initialTouchX", "$initialTouchX")
@@ -394,6 +413,7 @@ class SoundEditorFragment(private val mPodcast: Podcast) : Fragment() {
                     MotionEvent.ACTION_UP -> {
                         lastEndMargin = indicatorParams.marginEnd
                         currMarginEnd = lastEndMargin
+                        nestedScroll.setScrollingEnabled(true)
                     }
                     MotionEvent.ACTION_MOVE -> {
                         val currX = getScreenWidth() - motionEvent.rawX.toInt()
@@ -476,4 +496,6 @@ class SoundEditorFragment(private val mPodcast: Podcast) : Fragment() {
     private fun removeEditFrame(container: ConstraintLayout) {
         container.removeViews(container.childCount - 4, 4)
     }
+
+
 }

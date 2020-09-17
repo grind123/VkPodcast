@@ -35,7 +35,8 @@
         android:layout_marginHorizontal="12dp"
         android:background="@color/color_light_separator" />
 
-    <androidx.core.widget.NestedScrollView
+    <com.grind.vkpodcasts.customviews.LockingNestedScrollView
+        android:id="@+id/nsv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -271,6 +272,6 @@
                 android:textColor="@color/color_light_text_secondary"
                 android:textSize="13sp" />
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+    </com.grind.vkpodcasts.customviews.LockingNestedScrollView>
 
 </LinearLayout>
