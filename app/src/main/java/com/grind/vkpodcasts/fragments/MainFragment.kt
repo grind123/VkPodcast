@@ -19,6 +19,14 @@ fun Fragment.replaceFragment(fragment: Fragment, addToBackStack: Boolean){
     transaction.commit()
 }
 
+fun Fragment.addFragment(fragment: Fragment, addToBackStack: Boolean){
+    val transaction = fragmentManager!!.beginTransaction()
+        .add(R.id.main_container, fragment)
+        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+    if(addToBackStack) transaction.addToBackStack(fragment::class.java.simpleName)
+    transaction.commit()
+}
+
 class MainFragment: Fragment() {
     private lateinit var closeButton: ImageView
     private lateinit var addButton: TextView

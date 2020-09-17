@@ -30,6 +30,16 @@ class CreatePodcastFragment : Fragment() {
 
     private val mPodcast = Podcast()
 
+//    override fun onSaveInstanceState(outState: Bundle) {
+//        super.onSaveInstanceState(outState)
+//        outState.putString("retain","some retain info")
+//    }
+//
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        retainInstance = true
+//    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,8 +58,10 @@ class CreatePodcastFragment : Fragment() {
         nextButton = v.findViewById(R.id.tv_add_podcast)
 
         initListeners()
+
         return v
     }
+
 
     private fun initListeners() {
         backButton.setOnClickListener { fragmentManager?.popBackStack() }
@@ -60,7 +72,7 @@ class CreatePodcastFragment : Fragment() {
         }
 
         uploadPodcastFileButton.setOnClickListener {
-            showPodcastFile()
+            showPodcastFile(true)
             nextButton.background =
                 ContextCompat.getDrawable(context!!, R.drawable.button_primary_bg)
             nextButton.isClickable = true
@@ -68,20 +80,36 @@ class CreatePodcastFragment : Fragment() {
 
 
         nextButton.setOnClickListener {
-            if(mPodcast.logoUri == null) Toast.makeText(context, "Выберите обложку", Toast.LENGTH_SHORT).show()
-            if(podcastName.text.isNullOrBlank()) Toast.makeText(context, "Укажите название подкаста", Toast.LENGTH_SHORT).show()
-            if(podcastDesc.text.isNullOrBlank()) Toast.makeText(context, "", Toast.LENGTH_SHORT).show()
+            if (mPodcast.logoUri == null) {
+                Toast.makeText(context, "Выберите обложку", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (podcastName.text.isNullOrBlank()) {
+                Toast.makeText(context, "Укажите название подкаста", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (podcastDesc.text.isNullOrBlank()) {
+                Toast.makeText(context, "", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             //TODO next fragment
         }
     }
 
-    private fun showPodcastFile() {
+    private fun showPodcastFile(withAnimation: Boolean) {
         val title = view!!.findViewById<TextView>(R.id.tv_title)
         val desc = view!!.findViewById<TextView>(R.id.tv_desc)
-        ObjectAnimator.ofFloat(title, "alpha", 0f).apply { duration = 300 }.start()
-        ObjectAnimator.ofFloat(desc, "alpha", 0f).apply { duration = 300 }.start()
-        ObjectAnimator.ofFloat(uploadPodcastFileButton, "alpha", 0f).apply { duration = 300 }
-            .start()
+        if (withAnimation) {
+            ObjectAnimator.ofFloat(title, "alpha", 0f).apply { duration = 300 }.start()
+            ObjectAnimator.ofFloat(desc, "alpha", 0f).apply { duration = 300 }.start()
+            ObjectAnimator.ofFloat(uploadPodcastFileButton, "alpha", 0f).apply { duration = 300 }
+                .start()
+        } else {
+            title.visibility = View.INVISIBLE
+            desc.visibility = View.INVISIBLE
+            uploadPodcastFileButton.visibility = View.INVISIBLE
+        }
+
 
         val item = View.inflate(context, R.layout.item_loaded_podcast_file, null)
         val fileName = item.findViewById<TextView>(R.id.tv_track_name)
@@ -89,7 +117,7 @@ class CreatePodcastFragment : Fragment() {
         fileName.text = "My_Podcast.mp3"
         mPodcast.fileName = fileName.text.toString()
         editButton.setOnClickListener {
-            //soundEditorFragment
+            addFragment(SoundEditorFragment(mPodcast), true)
         }
 
         val params = ConstraintLayout.LayoutParams(
@@ -103,11 +131,15 @@ class CreatePodcastFragment : Fragment() {
         item.alpha = 0f
 
         (uploadPodcastFileButton.parent as ConstraintLayout).addView(item, params)
+        if (withAnimation) {
+            ObjectAnimator.ofFloat(item, "alpha", 1f).apply {
+                duration = 500
+                startDelay = 300
+            }.start()
+        } else {
+            item.alpha = 1f
+        }
 
-        ObjectAnimator.ofFloat(item, "alpha", 1f).apply {
-            duration = 500
-            startDelay = 300
-        }.start()
 
     }
 
